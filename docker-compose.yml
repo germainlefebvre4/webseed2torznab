@@ -1,0 +1,37 @@
+---
+services:
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - /path/to/prowlarr/data:/config
+    ports:
+      - 9696:9696
+    restart: unless-stopped
+
+  # webseed2torznab:
+  #   build: .
+  #   ports:
+  #     - "8080:8080"
+  #   volumes:
+  #     - "./torrents:/torrents:ro"  # Mount your torrents directory as read-only
+  #   environment:
+  #     - PORT=8080
+  #     - BASE_URL=http://localhost:8080
+  #   restart: unless-stopped
+    
+  # Alternative using pre-built image (if available)
+  # webseed2torznab:
+  #   image: germainlefebvre4/webseed2torznab:latest
+  #   ports:
+  #     - "8080:8080"
+  #   volumes:
+  #     - "./torrents:/torrents:ro"
+  #   environment:
+  #     - PORT=8080
+  #     - BASE_URL=http://localhost:8080
+  #   restart: unless-stopped

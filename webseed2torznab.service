@@ -1,0 +1,24 @@
+[Unit]
+Description=WebSeed2Torznab - Local Torznab API for torrent files with web seeds
+After=network.target
+
+[Service]
+Type=simple
+User=webseed2torznab
+Group=webseed2torznab
+WorkingDirectory=/opt/webseed2torznab
+ExecStart=/opt/webseed2torznab/webseed2torznab /opt/webseed2torznab/torrents
+Restart=always
+RestartSec=5
+Environment=PORT=8080
+Environment=BASE_URL=http://localhost:8080
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/webseed2torznab/torrents
+
+[Install]
+WantedBy=multi-user.target
