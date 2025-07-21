@@ -106,6 +106,41 @@ type TorznabAttr struct {
 	Value string `xml:"value,attr"`
 }
 
+// loggingMiddleware logs all HTTP requests
+func loggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+
+		// Create a response writer wrapper to capture status code
+		wrapped := &responseWriter{ResponseWriter: w, statusCode: http.StatusOK}
+
+		// Process the request
+		next.ServeHTTP(wrapped, r)
+
+		// Log the request
+		duration := time.Since(start)
+		log.Printf("%s %s %d %v - %s %s",
+			r.Method,
+			r.RequestURI,
+			wrapped.statusCode,
+			duration,
+			r.RemoteAddr,
+			r.UserAgent(),
+		)
+	})
+}
+
+// responseWriter wraps http.ResponseWriter to capture status code
+type responseWriter struct {
+	http.ResponseWriter
+	statusCode int
+}
+
+func (rw *responseWriter) WriteHeader(code int) {
+	rw.statusCode = code
+	rw.ResponseWriter.WriteHeader(code)
+}
+
 // TorrentManager handles torrent operations
 type TorrentManager struct {
 	torrentsDir string
@@ -459,6 +494,9 @@ func main() {
 
 	// Setup routes
 	r := mux.NewRouter()
+
+	// Add logging middleware
+	r.Use(loggingMiddleware)
 
 	// JSON API endpoints
 	r.HandleFunc("/api/torrents", apiServer.handleTorrentsJSON).Methods("GET")
